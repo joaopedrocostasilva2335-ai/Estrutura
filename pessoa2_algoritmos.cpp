@@ -1,11 +1,3 @@
-// =====================================================
-// PESSOA 2 - ALGORITMOS: Dijkstra, Kruskal, conexidade
-// e programa principal (main)
-//
-// Compilar: g++ -o eurotrip pessoa2_algoritmos.cpp
-// (precisa do arquivo pessoa1_grafo.h na mesma pasta)
-// =====================================================
-
 #include <queue>
 #include <algorithm>
 #include "pessoa1_grafo.h"
