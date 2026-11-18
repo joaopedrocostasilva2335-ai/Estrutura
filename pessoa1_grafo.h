@@ -1,0 +1,188 @@
+// =====================================================
+// PESSOA 1 - GRAFO: estruturas de dados, dados da viagem
+// e funcoes de impressao
+// (este arquivo e usado por pessoa2_algoritmos.cpp)
+// =====================================================
+#pragma once
+
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <list>
+#include <climits>
+#include <string>
+
+using namespace std;
+
+// =====================================================
+// GRAFO COM LISTA DE ADJACENCIA
+// =====================================================
+
+class GrafoListaPonderado {
+public:
+    int numVertices;
+    vector<list<pair<int, int>>> listaAdj;
+
+    GrafoListaPonderado(int vertices) : numVertices(vertices) {
+        listaAdj.resize(vertices);
+    }
+
+    void adicionarAresta(int origem, int destino, int peso) {
+        if (origem >= 0 && origem < numVertices &&
+            destino >= 0 && destino < numVertices) {
+            listaAdj[origem].push_back({destino, peso});
+        } else {
+            cout << "Erro: vertices invalidos" << endl;
+        }
+    }
+
+    const list<pair<int, int>>& obterVizinhos(int vertice) const {
+        static const list<pair<int, int>> vazio;
+        if (vertice >= 0 && vertice < numVertices) {
+            return listaAdj[vertice];
+        }
+        return vazio;
+    }
+};
+
+// =====================================================
+// GRAFO COM MATRIZ DE ADJACENCIA
+// =====================================================
+
+class GrafoMatrizPonderado {
+public:
+    int numVertices;
+    vector<vector<int>> matrizAdj;
+
+    GrafoMatrizPonderado(int vertices)
+        : numVertices(vertices),
+          matrizAdj(vertices, vector<int>(vertices, INT_MAX)) {
+    }
+
+    void adicionarAresta(int origem, int destino, int peso) {
+        if (origem >= 0 && origem < numVertices &&
+            destino >= 0 && destino < numVertices) {
+            matrizAdj[origem][destino] = peso;
+        } else {
+            cout << "Erro: vertices invalidos" << endl;
+        }
+    }
+
+    int obterPeso(int origem, int destino) const {
+        if (origem >= 0 && origem < numVertices &&
+            destino >= 0 && destino < numVertices) {
+            return matrizAdj[origem][destino];
+        }
+        return INT_MAX;
+    }
+};
+
+// =====================================================
+// DADOS DA VIAGEM
+// =====================================================
+
+const int N = 7;
+
+// Nome de cada vertice (o indice e o numero do vertice)
+string nome[N] = {
+    "Sao Paulo",
+    "Estadio da Luz",
+    "Bernabeu",
+    "Wembley",
+    "San Siro",
+    "Allianz Arena",
+    "Ataturk"
+};
+
+// Criterios: 0 = custo, 1 = distancia, 2 = tempo
+string nomeCriterio[3] = {"CUSTO (R$)", "DISTANCIA (km)", "TEMPO (min)"};
+
+struct Aresta {
+    int u;
+    int v;
+    int custo;   // R$
+    int dist;    // km
+    int tempo;   // minutos
+};
+
+// Tempo em minutos (ex.: 10,5 h = 630 min)
+vector<Aresta> arestas = {
+    //u  v  custo  dist  tempo
+    {0, 1, 3500,  7900, 630},   // Sao Paulo - Lisboa
+    {0, 2, 3800,  8400, 648},   // Sao Paulo - Madri
+    {0, 3, 4200,  9500, 690},   // Sao Paulo - Londres
+    {0, 6, 4800, 10400, 840},   // Sao Paulo - Istambul
+    {1, 2,  250,   503,  78},   // Lisboa - Madri
+    {1, 3,  450,  1590, 168},   // Lisboa - Londres
+    {2, 3,  400,  1260, 150},   // Madri - Londres
+    {2, 4,  380,  1190, 144},   // Madri - Milao
+    {3, 5,  420,   920, 120},   // Londres - Munique
+    {3, 4,  400,   960, 126},   // Londres - Milao
+    {4, 5,  300,   350,  72},   // Milao - Munique
+    {4, 6,  600,  2100, 198},   // Milao - Istambul
+    {5, 6,  550,  1850, 180}    // Munique - Istambul
+};
+
+// =====================================================
+// MONTAR OS GRAFOS (um para cada criterio)
+// =====================================================
+
+void montarGrafos(vector<GrafoListaPonderado>& lista,
+                  vector<GrafoMatrizPonderado>& matriz) {
+    for (const Aresta& e : arestas) {
+        int pesos[3] = {e.custo, e.dist, e.tempo};
+        for (int c = 0; c < 3; c++) {
+            // Grafo nao direcionado: ida e volta
+            lista[c].adicionarAresta(e.u, e.v, pesos[c]);
+            lista[c].adicionarAresta(e.v, e.u, pesos[c]);
+            matriz[c].adicionarAresta(e.u, e.v, pesos[c]);
+            matriz[c].adicionarAresta(e.v, e.u, pesos[c]);
+        }
+    }
+}
+
+// =====================================================
+// FUNCOES DE IMPRESSAO
+// =====================================================
+
+// Mostra o tempo em minutos como "Xh YYmin"
+string formatarTempo(int minutos) {
+    return to_string(minutos / 60) + "h" +
+           (minutos % 60 < 10 ? "0" : "") + to_string(minutos % 60) + "min";
+}
+
+void imprimirGrafo() {
+    cout << "=== GRAFO ORIGINAL ===" << endl;
+    for (int i = 0; i < N; i++) {
+        cout << "[" << i << "] " << nome[i] << endl;
+        int grau = 0;
+        for (const Aresta& e : arestas) {
+            if (e.u == i || e.v == i) {
+                int outro = (e.u == i) ? e.v : e.u;
+                cout << "     -> [" << outro << "] " << nome[outro]
+                     << " | R$ " << e.custo << " | " << e.dist << " km | "
+                     << formatarTempo(e.tempo) << endl;
+                grau++;
+            }
+        }
+        cout << "     (grau = " << grau << ")" << endl;
+    }
+    cout << endl;
+}
+
+void imprimirMatriz(const GrafoMatrizPonderado& m, string titulo) {
+    cout << "--- Matriz de " << titulo << " (- = sem ligacao direta) ---" << endl;
+    cout << setw(5) << " ";
+    for (int j = 0; j < N; j++) cout << setw(7) << j;
+    cout << endl;
+    for (int i = 0; i < N; i++) {
+        cout << setw(5) << i;
+        for (int j = 0; j < N; j++) {
+            if (i == j) cout << setw(7) << 0;
+            else if (m.obterPeso(i, j) == INT_MAX) cout << setw(7) << "-";
+            else cout << setw(7) << m.obterPeso(i, j);
+        }
+        cout << endl;
+    }
+    cout << endl;
+}
