@@ -80,13 +80,13 @@ const int N = 7;
 
 // Nome de cada vertice (o indice e o numero do vertice)
 string nome[N] = {
-    "Sao Paulo (Brasil)",
-    "Estadio da Luz (Portugal)",
-    "Santiago Bernabeu (Espanha)",
-    "Wembley (Inglaterra)",
-    "San Siro (Italia)",
-    "Allianz Arena (Alemanha)",
-    "Ataturk Olimpico (Turquia)"
+    "Sao Paulo",
+    "Estadio da Luz",
+    "Bernabeu",
+    "Wembley",
+    "San Siro",
+    "Allianz Arena",
+    "Ataturk"
 };
 
 // Criterios: 0 = custo, 1 = distancia, 2 = tempo
@@ -100,9 +100,6 @@ struct Aresta {
     int tempo;   // minutos
 };
 
-// =====================================================
-// DIJKSTRA (com vetor "pai" para reconstruir o caminho)
-// =====================================================
 
 class Dijkstra {
 public:
@@ -143,9 +140,6 @@ public:
     }
 };
 
-// =====================================================
-// KRUSKAL (usa Union-Find) - devolve as arestas da AGM
-// =====================================================
 
 struct ArestaSimples {
     int u;
@@ -207,9 +201,6 @@ public:
     }
 };
 
-// =====================================================
-// FUNCOES DE IMPRESSAO
-// =====================================================
 
 // Mostra o tempo em minutos como "Xh YYmin"
 string formatarTempo(int minutos) {
@@ -263,10 +254,6 @@ bool ehConexo(const GrafoListaPonderado& g) {
     return true;
 }
 
-// =====================================================
-// PROGRAMA PRINCIPAL
-// =====================================================
-
 int main() {
     // Tempo em minutos (ex.: 10,5 h = 630 min)
     vector<Aresta> arestas = {
@@ -301,15 +288,17 @@ int main() {
         }
     }
 
-    // 1. Grafo original
-    imprimirGrafo(arestas);
-    cout << "Grafo conexo? " << (ehConexo(lista[0]) ? "SIM" : "NAO") << endl << endl;
+    // Mude para true para ver tambem o grafo original e as 3 matrizes
+    const bool MOSTRAR_DETALHES = false;
 
-    // 2. As 3 matrizes
-    cout << "=== MATRIZES ===" << endl;
-    for (int c = 0; c < 3; c++) imprimirMatriz(matriz[c], nomeCriterio[c]);
+    if (MOSTRAR_DETALHES) {
+        imprimirGrafo(arestas);
+        cout << "Grafo conexo? " << (ehConexo(lista[0]) ? "SIM" : "NAO") << endl << endl;
+        cout << "=== MATRIZES ===" << endl;
+        for (int c = 0; c < 3; c++) imprimirMatriz(matriz[c], nomeCriterio[c]);
+    }
 
-    // 3. Caminhos minimos: Sao Paulo (0) -> Istambul (6)
+    // Caminhos minimos: Sao Paulo (0) -> Istambul (6)
     int origem = 0, destino = 6;
     cout << "=== CAMINHOS MINIMOS: " << nome[origem] << " ate "
          << nome[destino] << " ===" << endl;
@@ -340,7 +329,7 @@ int main() {
              << " km | Tempo: " << formatarTempo(totTempo) << endl;
     }
 
-    // 4. Arvore Geradora Minima (Kruskal pelo custo)
+    // Arvore Geradora Minima (Kruskal pelo custo)
     cout << endl << "=== ARVORE GERADORA MINIMA (Kruskal, pelo custo) ===" << endl;
     Kruskal kruskal(lista[0]);
     vector<ArestaSimples> agm = kruskal.executar();
